@@ -3,9 +3,9 @@ import pytest
 from db_es.callback import ElasticInsert, DOCMAP, xpd_filter, iss_filter
 
 # TODO: fill these in with prototype data!
-xpd_doc = {"bl": "xpd Powder Diffraction", 'uid': 'hi'}
-xpd_bad_doc = {"bt_piLast": "not Simon", "bl": "xpd Powder Diffraction", 'uid': 'hi1'}
-iss_doc = {"bl": "iss Spectroscopy", 'uid': 'hi2'}
+xpd_doc = {"bl": "xpd", 'uid': 'hi'}
+xpd_bad_doc = {"bt_piLast": "not Simon", "bl": "xpd", 'uid': 'hi1'}
+iss_doc = {"bl": "iss", 'uid': 'hi2'}
 
 
 @pytest.mark.parametrize(
