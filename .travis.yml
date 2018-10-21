@@ -42,7 +42,7 @@ install:
 
 script:
   - set -e
-  - conda install pytest
+  - conda install pytest coverage codecov
   # make sure the sqlite file exists to avoid race conditions
   - python -c "from bluesky.utils import get_history; get_history()"
   - coverage run run_tests.py
