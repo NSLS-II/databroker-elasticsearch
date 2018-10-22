@@ -191,10 +191,12 @@ class ElasticInsert(CallbackBase):
     >>> ei = ElasticInsert(es, esindex='xpd', docmap=docmap, beamline='xpd',
     >>>                    criteria=lambda x: 'CJ' in x['bt_piLast'])
     
-    Once the callback has been setup it can be subcribed to the RunEngine
+    Once the callback has been setup it can be subscribed to the RunEngine so
+    that all subsequent data is added to elasticsearch
     >>> RE.subscribe(ei)
 
-    Or data from the databroker can be sent through
+    Or data from the databroker can be sent through, for initializing
+    elasticsearch
     >>> for hdr in db():
     ...     for name, doc in hdr.documents():
     ...         ei(name, doc)
