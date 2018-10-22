@@ -1,3 +1,4 @@
+import time
 import pytest
 
 from db_es.callback import ElasticInsert, DOCMAP, xpd_filter, iss_filter
@@ -23,6 +24,7 @@ def test_callback(es, idx, dm, bl, f, doc):
     cb = ElasticInsert(es=es, esindex=idx, docmap=dm, beamline=bl, criteria=f)
     cb("start", doc)
     # Search ES find thing
+    time.sleep(10)
     res = es.search(idx, body={"query": {"match": {"bl": bl}}})
     assert len(res["hits"]["hits"]) == 1
 
@@ -37,5 +39,6 @@ def test_no_op_callback(es):
     )
     cb("start", xpd_bad_doc)
     # Search ES find thing
+    time.sleep(10)
     res = es.search("xpd", body={"query": {"match": {"bl": bl}}})
     assert len(res["hits"]["hits"]) == 0
