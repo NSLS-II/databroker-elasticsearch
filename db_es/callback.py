@@ -162,13 +162,50 @@ def esdocument(docmap, entry):
 
 
 class ElasticInsert(CallbackBase):
-    """Callback for inserting start metadata into an ElasticSearch instance"""
+    """Callback for inserting start metadata into an ElasticSearch instance
+
+    Examples
+    --------
+    Run imports
+    >>> from elasticsearch import Elasticsearch
+    >>> from db_es.callback import ElasticInsert, noconversion, toisoformat
+    
+    Assuming that the Elasticsearch instance is running on local host
+    >>> es = Elasticsearch(hosts=['127.0.0.1'])
+   
+    Create a list of tuples which is the `('data_name',
+    'elasticsearch_name', converter)` The `data_name` is the name in the
+    data and `elasticsearch_name` is the name in elasticsearch. The
+    converter is a function which converts the data from the type from the
+    experiment to a type that elasticsearch can understand, most times
+    `noconversion` will work
+    >>> docmap = [('bt_piLast', 'pi', noconversion), ('cycle', 'cycle', int)]
+
+    Create an instance of ElasticInsert
+    >>> ei = ElasticInsert(es, esindex='xpd', docmap=docmap, beamline='xpd')
+    
+    Optionally an additional criteria function can be given. When provided
+    the function is run on all the incoming data. If the function returns
+    True the data will be copied to Elasticsearch, otherwise it will not.
+    This can be used to prevent propritary data from being exposed.
+    >>> ei = ElasticInsert(es, esindex='xpd', docmap=docmap, beamline='xpd',
+    >>>                    criteria=lambda x: 'CJ' in x['bt_piLast'])
+    
+    Once the callback has been setup it can be subcribed to the RunEngine
+    >>> RE.subscribe(ei)
+
+    Or data from the databroker can be sent through
+    >>> for hdr in db():
+    ...     for name, doc in hdr.documents():
+    ...         ei(name, doc)
+    
+    """
 
     def __init__(
         self,
         es: Elasticsearch,
         esindex: str,
-        docmap: dict,
+        docmap: list,
         beamline: str,
         criteria=lambda x: True,
     ):
@@ -180,9 +217,9 @@ class ElasticInsert(CallbackBase):
             The Elasticsearch client to push entries to
         esindex : str
             The index to use in Elasticsearch
-        docmap : dict
+        docmap : list
             A map between keys in the start document and keys in the ES
-            instance
+            instance, with conversions
         beamline : str
             Name of beamline
         criteria : callable, optional
