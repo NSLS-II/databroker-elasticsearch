@@ -32,7 +32,7 @@ def test_callback(es, idx, dm, bl, f, doc):
 def test_no_op_callback(es):
     cb = ElasticInsert(
         es=es,
-        esindex="xpd",
+        esindex="bad_xpd",
         docmap=DOCMAP["xpd"],
         beamline="xpd",
         criteria=xpd_filter,
@@ -40,5 +40,5 @@ def test_no_op_callback(es):
     cb("start", xpd_bad_doc)
     # Search ES find thing
     time.sleep(10)
-    res = es.search("xpd", body={"query": {'match_all': {}}})
+    res = es.search("bad_xpd", body={"query": {'match_all': {}}})
     assert len(res["hits"]["hits"]) == 0
