@@ -71,10 +71,10 @@ class ElasticInsert(CallbackBase):
     Run imports
     >>> from elasticsearch import Elasticsearch
     >>> from db_es.callback import ElasticInsert, noconversion, toisoformat
-    
+
     Assuming that the Elasticsearch instance is running on local host
     >>> es = Elasticsearch(hosts=['127.0.0.1'])
-    
+
     Create a list of tuples which is the `('data_name',
     'elasticsearch_name', converter)` The `data_name` is the name in the
     data and `elasticsearch_name` is the name in elasticsearch. The
@@ -92,7 +92,7 @@ class ElasticInsert(CallbackBase):
     This can be used to prevent propritary data from being exposed.
     >>> ei = ElasticInsert(es, esindex='xpd', docmap=docmap, beamline='xpd',
     >>>                    criteria=lambda x: 'CJ' in x['bt_piLast'])
- 
+
     Once the callback has been setup it can be subscribed to the RunEngine so
     that all subsequent data is added to elasticsearch
     >>> RE.subscribe(ei)
@@ -102,7 +102,7 @@ class ElasticInsert(CallbackBase):
     >>> for hdr in db():
     ...     for name, doc in hdr.documents():
     ...         ei(name, doc)
-    
+
     """
 
     def __init__(
