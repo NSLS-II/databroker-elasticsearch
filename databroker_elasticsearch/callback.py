@@ -70,7 +70,8 @@ class ElasticInsert(CallbackBase):
     --------
     Run imports
     >>> from elasticsearch import Elasticsearch
-    >>> from db_es.callback import ElasticInsert, noconversion, toisoformat
+    >>> from databroker_elasticsearch.callback import ElasticInsert
+    >>> from databroker_elasticsearch.callback import noconversion, toisoformat
 
     Assuming that the Elasticsearch instance is running on local host
     >>> es = Elasticsearch(hosts=['127.0.0.1'])

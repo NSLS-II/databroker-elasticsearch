@@ -1,7 +1,7 @@
 import time
 import pytest
 
-from db_es.callback import ElasticInsert, noconversion
+from databroker_elasticsearch.callback import ElasticInsert, noconversion
 
 # TODO: fill these in with prototype data!
 xpd_doc = {"bl": "xpd", "uid": "hi"}

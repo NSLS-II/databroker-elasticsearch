@@ -4,7 +4,8 @@ profile after the RunEngine has been initialized.
 
 Note that the host IP address may need to be changed"""
 from elasticsearch import Elasticsearch
-from db_es.callback import ElasticInsert, noconversion, toisoformat
+from databroker_elasticsearch.callback import ElasticInsert
+from databroker_elasticsearch.callback import noconversion, toisoformat
 
 docmap = [
     # docname  esname  converter
