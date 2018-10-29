@@ -1,4 +1,3 @@
-import time
 import pytest
 
 from databroker_elasticsearch.callback import ElasticInsert, noconversion
@@ -67,8 +66,7 @@ def xpd_filter(x):
 def test_callback(es, idx, dm, bl, f, doc):
     cb = ElasticInsert(es=es, esindex=idx, docmap=dm, beamline=bl, criteria=f)
     cb("start", doc)
-    # Search ES find thing
-    time.sleep(10)
+    es.indices.flush()
     res = es.search(idx, body={"query": {"match_all": {}}})
     assert len(res["hits"]["hits"]) == 1
 
@@ -82,7 +80,6 @@ def test_no_op_callback(es):
         criteria=xpd_filter,
     )
     cb("start", xpd_bad_doc)
-    # Search ES find thing
-    time.sleep(10)
+    es.indices.flush()
     res = es.search("bad_xpd", body={"query": {"match_all": {}}})
     assert len(res["hits"]["hits"]) == 0
