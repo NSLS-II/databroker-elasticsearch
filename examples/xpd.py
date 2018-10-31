@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 from databroker import Broker
 
 
-from db_es.callback import (
+from databroker_elasticsearch.callback import (
     ElasticInsert,
     noconversion,
     toisoformat,
