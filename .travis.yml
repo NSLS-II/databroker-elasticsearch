@@ -37,7 +37,7 @@ install:
   - git clean -xfd
 
 before_script:
-  - conda install pytest coverage codecov
+  - conda install pytest coverage codecov flake8
   # use matplotlib backend that does not need DISPLAY
   - export MPLBACKEND=agg
   # make sure the sqlite file exists to avoid race conditions
