@@ -5,6 +5,7 @@ Functions for converting values that are exported to Elasticsearch.
 """
 
 def noconversion(x):
+    "Return the argument as is."
     return x
 
 
@@ -34,14 +35,31 @@ def toisoformat(epoch):
 
 
 def normalize_counts(d):
+    """Normalize numeric values in a dictionary to a total of 1.
+
+    For obtaining normalized stoichiometry in a chemical formula.
+
+    Parameters
+    ----------
+    d : dict or collections.OrderedDict
+        The dictionary to be normalized.
+
+    Returns
+    -------
+        A copy of `d` with values summing to a total of 1.
+        Return ``None`` when `d` is of invalid type.
+    """
     if not isinstance(d, dict):
         return None
+    rv = d.copy()
     totalcount = sum(d.values()) or 1.0
-    rv = dict((k, v / totalcount) for k, v in d.items())
+    rv.update((k, v / totalcount) for k, v in d.items())
     return rv
 
 
 def listofstrings(v):
+    """Return argument if it is a list of strings or None if not.
+    """
     rv = None
     if isinstance(v, list) and all(isinstance(w, str) for w in v):
         rv = v
