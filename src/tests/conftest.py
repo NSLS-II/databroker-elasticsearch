@@ -1,5 +1,10 @@
+import os
 import pytest
 from elasticsearch import Elasticsearch
+
+# Suggest matplotlib backend that does not need DISPLAY or
+# python running as a framework on OS X.
+os.environ.setdefault('MPLBACKEND', 'agg')
 
 
 @pytest.fixture(scope='module')
