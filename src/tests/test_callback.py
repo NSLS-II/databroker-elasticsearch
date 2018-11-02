@@ -1,6 +1,7 @@
 import pytest
 
-from databroker_elasticsearch.callback import ElasticInsert, noconversion
+from databroker_elasticsearch.callback import ElasticInsert
+from databroker_elasticsearch.converters import noconversion
 
 # TODO: fill these in with prototype data!
 xpd_doc = {"bl": "xpd", "uid": "hi"}
