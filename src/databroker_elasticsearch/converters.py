@@ -4,11 +4,35 @@
 Functions for converting values that are exported to Elasticsearch.
 """
 
+# handle registration of converter functions ---------------------------------
+
+def register_converter(f, name=None):
+    "Decorator to mark up some function as a converter."
+    nm = f.__name__ if name is None else name
+    _converters[nm] = f
+    return f
+
+_converters = {}
+
+
+def getconverter(name):
+    "Return converter function of the specified name."
+    return _converters[name]
+
+# define and register converter functions ------------------------------------
+
+register_converter(int)
+
+register_converter(float)
+
+
+@register_converter
 def noconversion(x):
     "Return the argument as is."
     return x
 
 
+@register_converter
 def toisoformat(epoch):
     """Convert epoch seconds to elasticsearch friendly ISO time.
 
@@ -34,6 +58,7 @@ def toisoformat(epoch):
     return rv
 
 
+@register_converter
 def normalize_counts(d):
     """Normalize numeric values in a dictionary to a total of 1.
 
@@ -57,6 +82,7 @@ def normalize_counts(d):
     return rv
 
 
+@register_converter
 def listofstrings(v):
     """Return argument if it is a list of strings or None if not.
     """
