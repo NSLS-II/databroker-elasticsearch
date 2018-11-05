@@ -66,7 +66,7 @@ class ElasticInsert(CallbackBase):
         esindex: str,
         docmap: list,
         beamline: str,
-        criteria=lambda x: True,
+        criteria=None,
     ):
         """Init callback
 
@@ -95,31 +95,34 @@ class ElasticInsert(CallbackBase):
 
 
     def start(self, doc):
-        if self.criteria(doc):
-            # filter the doc
-            # transform the docs
-            sanitized_docs = esdocument(self.docmap, doc)
-            actions = dict(
-                _index=self.esindex,
-                # XXX: this might not work?
-                _id=doc["uid"],
-                _type=self.beamline,
-                _source=sanitized_docs,
-            )
-            self.es.indices.delete(index=self.esindex, ignore_unavailable=True)
-            self.es.indices.create(index=self.esindex)
-            mbody = {
-                "properties": {
-                    "time": {"type": "date", "format": "epoch_second"},
-                    "date": {
-                        "type": "date",
-                        "format": "strict_date_optional_time",
-                    },
-                }
+        # skip document if it does not meet criteria
+        ok = self.criteria is None or self.criteria(doc)
+        if not ok:
+            return
+        # filter the doc
+        # transform the docs
+        sanitized_docs = esdocument(self.docmap, doc)
+        actions = dict(
+            _index=self.esindex,
+            # XXX: this might not work?
+            _id=doc["uid"],
+            _type=self.beamline,
+            _source=sanitized_docs,
+        )
+        self.es.indices.delete(index=self.esindex, ignore_unavailable=True)
+        self.es.indices.create(index=self.esindex)
+        mbody = {
+            "properties": {
+                "time": {"type": "date", "format": "epoch_second"},
+                "date": {
+                    "type": "date",
+                    "format": "strict_date_optional_time",
+                },
             }
-            self.es.indices.put_mapping(
-                doc_type=self.beamline, index=self.esindex, body=mbody
-            )
-            # TODO: use regular insert rather than bulk
-            eshelpers.bulk(self.es, [actions])
+        }
+        self.es.indices.put_mapping(
+            doc_type=self.beamline, index=self.esindex, body=mbody
+        )
+        # TODO: use regular insert rather than bulk
+        eshelpers.bulk(self.es, [actions])
         return
