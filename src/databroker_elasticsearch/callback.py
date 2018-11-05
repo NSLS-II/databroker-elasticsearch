@@ -58,7 +58,6 @@ class ElasticInsert(CallbackBase):
     >>> for hdr in db():
     ...     for name, doc in hdr.documents():
     ...         ei(name, doc)
-
     """
 
     def __init__(
@@ -92,6 +91,8 @@ class ElasticInsert(CallbackBase):
         self.esindex = esindex
         self.docmap = docmap
         self.es = es
+        return
+
 
     def start(self, doc):
         if self.criteria(doc):
@@ -121,3 +122,4 @@ class ElasticInsert(CallbackBase):
             )
             # TODO: use regular insert rather than bulk
             eshelpers.bulk(self.es, [actions])
+        return
