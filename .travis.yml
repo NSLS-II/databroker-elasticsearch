@@ -54,4 +54,5 @@ after_success:
 #  - doctr deploy . --built-docs ./docs/_build/html;
 
 after_script:
-  - flake8 .
+  - flake8 --exclude=examples .
+  - flake8 --builtins=RE examples
