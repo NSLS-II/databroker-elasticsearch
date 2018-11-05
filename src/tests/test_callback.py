@@ -53,7 +53,7 @@ def xpd_filter(x):
 @pytest.mark.parametrize(
     "idx, dm, bl, f, doc",
     zip(
-        ["xpd", "iss"],
+        ["dbes-test-xpd", "dbes-test-iss"],
         [
             [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
             [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
@@ -74,7 +74,7 @@ def test_callback(es, idx, dm, bl, f, doc):
 def test_no_op_callback(es):
     cb = ElasticInsert(
         es=es,
-        esindex="bad_xpd",
+        esindex="dbes-test-bad_xpd",
         docmap=[("uid", "uid", noconversion), ("bl", "bl", noconversion)],
         beamline="xpd",
         criteria=xpd_filter,
