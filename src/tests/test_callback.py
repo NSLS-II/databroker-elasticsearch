@@ -81,5 +81,5 @@ def test_no_op_callback(es):
     )
     cb("start", xpd_bad_doc)
     es.indices.flush()
-    res = es.search("bad_xpd", body={"query": {"match_all": {}}})
+    res = es.search("dbes-test-bad_xpd", body={"query": {"match_all": {}}})
     assert res["hits"]["total"] == 0
