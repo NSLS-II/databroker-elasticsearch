@@ -20,10 +20,14 @@ def es():
 
 def test___init__(es):
     ei = ElasticIndex(es, 'foo')
-    assert isinstance(ei.es, Elasticsearch)
+    assert ei.es is es
     assert ei.index == 'foo'
     assert ei.mapper is None
     assert ei.criteria is None
+    ei1 = ElasticIndex('localhost', 'bar')
+    assert isinstance(ei1.es, Elasticsearch)
+    ei2 = ElasticIndex({'hosts': 'localhost'}, 'baz')
+    assert isinstance(ei2.es, Elasticsearch)
     return
 
 

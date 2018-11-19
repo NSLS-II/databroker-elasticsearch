@@ -27,8 +27,10 @@ class ElasticIndex:
 
     Attributes
     ----------
-    es : Elasticsearch
+    es : Elasticsearch, str, or dict
         The Elasticsearch client to push entries to.
+        When `str` or `dict` type, instantiate a new Elasticsearch object
+        using this argument.
     index : str
         The name of the Elasticsearch index to be manipulated.
     mapper : callable or None, optional
@@ -51,12 +53,14 @@ class ElasticIndex:
 
     def __init__(
             self,
-            es: Elasticsearch,
+            es,
             index: str,
             mapper: Callable=None,
             criteria: Callable=None,
     ):
-        self.es = es
+        self.es = (Elasticsearch(es) if isinstance(es, str)
+                   else Elasticsearch(**es) if isinstance(es, dict)
+                   else es)
         self.index = index
         self.mapper = mapper
         self.criteria = criteria
