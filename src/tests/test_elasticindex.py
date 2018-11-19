@@ -39,7 +39,6 @@ def test_reset(es):
     return
 
 
-@pytest.mark.xfail
 def test_add(es):
     ei = ElasticIndex(es, 'dbes-test-add')
     ei.reset()
@@ -62,7 +61,6 @@ def test_add(es):
     return
 
 
-@pytest.mark.xfail
 def test_bulk(es):
     ei = ElasticIndex(es, 'dbes-test-bulk')
     ei.reset()

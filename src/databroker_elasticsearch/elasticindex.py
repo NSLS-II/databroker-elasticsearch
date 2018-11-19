@@ -9,19 +9,6 @@ from elasticsearch import Elasticsearch
 from elasticsearch import helpers as eshelpers
 
 
-def esdocument(docmap, entry):
-    rv = {}
-    for doc_key, esname, fcnv in docmap:
-        if not doc_key in entry:
-            continue
-        doc_value = entry[doc_key]
-        evalue = fcnv(doc_value) if doc_value is not None else None
-        if evalue is None:
-            continue
-        rv[esname] = evalue
-    return rv
-
-
 class ElasticIndex:
     """Convenience functions for adding documents to Elasticsearch index.
 
@@ -82,23 +69,30 @@ class ElasticIndex:
 
 
     def _generate(self, docs):
-        """Make translated Elasticsearch entries that pass the criteria.
+        """Produce transformed Elasticsearch entries that pass the criteria.
+
+        The transformed documents must have an `_id` key which is then used
+        for Elasticsearch unique identifier.
 
         Parameters
         ----------
         docs : iterable
-            The sequence of input documents.
+            The sequence of input documents of dictionary type.
 
-        Returns
-        -------
-        iterable
-            The translated documents that satisfy ``self.criteria``.
+        Yield
+        -----
+        tuple
+            The pairs of (_id, _source) for ES entry identifier and body.
         """
         okdocs = (docs if self.criteria is None
                   else filter(self.criteria, docs))
         entries = (okdocs if self.mapper is None
                    else map(self.mapper, okdocs))
-        return entries
+        for e in entries:
+            doc = e.copy()
+            i = doc.pop('_id')
+            yield (i, doc)
+        pass
 
 
     def reset(self):
@@ -124,8 +118,10 @@ class ElasticIndex:
             Number of added documents, 0 or 1.
         """
         cnt = 0
-        for cnt, e in enumerate(self._generate([doc])):
-            self.es.index(index=self.index, doc_type=self.doc_type, body=e)
+        for i, body in self._generate([doc]):
+            self.es.index(index=self.index, doc_type=self.doc_type,
+                          id=i, body=body)
+            cnt += 1
         return cnt
 
 
@@ -137,10 +133,10 @@ class ElasticIndex:
         int
             Number of added documents.
         """
-        actions = (dict(_index=self.index, _id=e['_id'],
-                        _type=self.doc_type, _source=e)
-                   for e in self._generate(docs))
+        a = {"_index": self.index, "_type": self.doc_type}
+        actions = ((a, a.update(_id=i, _source=src))[0]
+                   for i, src in self._generate(docs))
         res = eshelpers.bulk(self.es, actions)
-        return res['total']
+        return res[0]
 
 # end of class
