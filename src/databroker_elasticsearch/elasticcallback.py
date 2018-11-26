@@ -75,6 +75,30 @@ class ElasticCallback(CallbackBase):
         return
 
 
+    @classmethod
+    def from_config(cls, config):
+        """
+        Create a new ElasticCallback instance using a configuration dictionary.
+
+        Parameters
+        ----------
+        config : dict
+            The configuration dictionary that constructs ElasticIndex
+
+        Returns
+        -------
+        ElasticCallback
+        """
+        from databroker._core import load_cls
+        from databroker_elasticsearch.elasticdocument import ElasticDocument
+        cfg = config['elasticsearch']
+        esdoc = ElasticDocument(cfg['docmap'])
+        esindex = ElasticIndex(cfg['host'], index=cfg['index'], mapper=esdoc)
+        cbcls = load_cls(config['elasticsearch'])
+        rv = cbcls(esindex)
+        return rv
+
+
     def start(self, doc):
         # FIXME should we cache and ingest in stop() to avoid canceled runs?
         self.esindex.ingest(doc)
