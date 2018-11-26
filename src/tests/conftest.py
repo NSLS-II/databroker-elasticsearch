@@ -17,3 +17,10 @@ def es(host="127.0.0.1"):
     yield e
     ic.delete('dbes-test-*')
     return
+
+
+def tdatafile(filename):
+    "Return absolute path to a file in testdata/ directory."
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    rv = os.path.join(thisdir, 'testdata', filename)
+    return rv
