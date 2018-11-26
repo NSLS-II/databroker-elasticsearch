@@ -72,6 +72,28 @@ class ElasticIndex:
         return
 
 
+    @classmethod
+    def from_config(cls, config):
+        """
+        Create a new ElasticIndex instance using a configuration dictionary.
+
+        Parameters
+        ----------
+        config : dict
+            The configuration dictionary that describes ElasticIndex.
+            It must contain "databroker-elasticsearch" key.
+
+        Returns
+        -------
+        ElasticIndex
+        """
+        from databroker_elasticsearch.elasticdocument import ElasticDocument
+        cfg = config['databroker-elasticsearch']
+        esdoc = ElasticDocument(cfg['docmap'])
+        rv = cls(es=cfg['host'], index=cfg['index'], mapper=esdoc)
+        return rv
+
+
     def _generate(self, docs):
         """Produce transformed Elasticsearch entries that pass the criteria.
 

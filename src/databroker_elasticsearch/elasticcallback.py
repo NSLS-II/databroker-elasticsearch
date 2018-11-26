@@ -83,19 +83,16 @@ class ElasticCallback(CallbackBase):
         Parameters
         ----------
         config : dict
-            The configuration dictionary that constructs ElasticIndex
+            The configuration dictionary that describes ElasticIndex.
+            It must contain "databroker-elasticsearch" key.
 
         Returns
         -------
         ElasticCallback
         """
-        from databroker._core import load_cls
-        from databroker_elasticsearch.elasticdocument import ElasticDocument
-        cfg = config['elasticsearch']
-        esdoc = ElasticDocument(cfg['docmap'])
-        esindex = ElasticIndex(cfg['host'], index=cfg['index'], mapper=esdoc)
-        cbcls = load_cls(config['elasticsearch'])
-        rv = cbcls(esindex)
+        from databroker_elasticsearch.elasticindex import ElasticIndex
+        esindex = ElasticIndex.from_config(config)
+        rv = cls(esindex)
         return rv
 
 

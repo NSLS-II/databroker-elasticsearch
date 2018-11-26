@@ -16,7 +16,7 @@ def callback_from_config(config):
     Parameters
     ----------
     config : dict
-        The configuration dictionary.
+        The dictionary which contains "databroker-elasticsearch" key.
 
     Returns
     -------
