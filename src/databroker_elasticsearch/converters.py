@@ -22,8 +22,8 @@ def getconverter(name):
 # define and register converter functions ------------------------------------
 
 register_converter(int)
-
 register_converter(float)
+register_converter(str)
 
 
 @register_converter
