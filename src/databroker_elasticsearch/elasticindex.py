@@ -113,8 +113,8 @@ class ElasticIndex:
         return
 
 
-    def add(self, doc):
-        """Add one document to ES if it passes `criteria`.
+    def ingest(self, doc):
+        """Convert and insert one document to ES if it passes `criteria`.
 
         Returns
         -------
@@ -129,8 +129,8 @@ class ElasticIndex:
         return cnt
 
 
-    def bulk(self, docs):
-        """Add many documents to ES if they pass `criteria`.
+    def devour(self, docs):
+        """Convert and add many documents to ES if they pass `criteria`.
 
         Returns
         -------

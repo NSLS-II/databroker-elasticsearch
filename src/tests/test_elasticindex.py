@@ -43,19 +43,19 @@ def test_reset(es):
     return
 
 
-def test_add(es):
-    ei = ElasticIndex(es, 'dbes-test-add')
+def test_ingest(es):
+    ei = ElasticIndex(es, 'dbes-test-ingest')
     ei.reset()
     doc1 = {"_id": 1, "fruit": "apple"}
-    assert ei.add(doc1) == 1
+    assert ei.ingest(doc1) == 1
     # check ElasticIndex.criteria
     doc2 = {"_id": 2, "fruit": "banana"}
     ei.criteria = lambda e: e['fruit'] != "banana"
-    assert ei.add(doc2) == 0
+    assert ei.ingest(doc2) == 0
     # check ElasticIndex.mapper
     ei.mapper = lambda e: dict(e, fruit=e['fruit'].upper())
     doc3 = {"_id": 3, "fruit": "cantaloupe"}
-    assert ei.add(doc3) == 1
+    assert ei.ingest(doc3) == 1
     bqall = {"query": {"match_all": {}}}
     es.indices.refresh()
     res = es.search(index=ei.index, body=bqall)
@@ -65,15 +65,15 @@ def test_add(es):
     return
 
 
-def test_bulk(es):
-    ei = ElasticIndex(es, 'dbes-test-bulk')
+def test_devour(es):
+    ei = ElasticIndex(es, 'dbes-test-devour')
     ei.reset()
     docs = [
         {"_id": 1, "fruit": "apple"},
         {"_id": 2, "fruit": "banana"},
         {"_id": 3, "fruit": "cantaloupe"},
     ]
-    assert ei.bulk(docs) == 3
+    assert ei.devour(docs) == 3
     es.indices.refresh()
     cnt = int(es.cat.count(ei.index, h='count'))
     assert cnt == 3
