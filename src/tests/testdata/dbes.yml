@@ -1,28 +1,28 @@
 # Example configuration for ElasticIndex and ElasticCallback factory
 databroker-elasticsearch:
-    host: 'localhost'
-    index: 'dbes-test-iss'
-    docmap:
-        # brokername  [esname[=brokername]]  [converter[=noconversion]]
-        # the mapping must produce ES name "_id"
-        - [_id, _id, str]
-        - [comment]
-        - [cycle, cycle, int]
-        - [detectors]
-        - [e0]
-        - [edge]
-        - [element]
-        - [experiment]
-        - [group]
-        - [name]
-        - [num_points]
-        - [plan_name]
-        - [PI, pi]
-        - [PROPOSAL, proposal]
-        - [SAF, saf]
-        - [scan_id]
-        - [time]
-        - [trajectory_name]
-        - [uid]
-        - [year, year, int]
-        - [time, date, toisoformat]
+  host: localhost
+  index: dbes-test-iss
+  docmap:
+    # brokername  [esname[=brokername]]  [converter[=noconversion]]
+    # the mapping must produce ES name "_id"
+    - [_id, _id, str]
+    - [comment]
+    - [cycle, cycle, int]
+    - [detectors]
+    - [e0]
+    - [edge]
+    - [element]
+    - [experiment]
+    - [group]
+    - [name]
+    - [num_points]
+    - [plan_name]
+    - [PI, pi]
+    - [PROPOSAL, proposal]
+    - [SAF, saf]
+    - [scan_id]
+    - [time]
+    - [trajectory_name]
+    - [uid]
+    - [year, year, int]
+    - [time, date, toisoformat]
