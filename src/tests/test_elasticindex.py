@@ -10,14 +10,6 @@ from elasticsearch import Elasticsearch, NotFoundError
 from databroker_elasticsearch.elasticindex import ElasticIndex
 
 
-@pytest.fixture(scope='module')
-def es():
-    e = Elasticsearch()
-    yield e
-    e.indices.delete('dbes-test-*')
-    return
-
-
 def test___init__(es):
     ei = ElasticIndex(es, 'foo')
     assert ei.es is es

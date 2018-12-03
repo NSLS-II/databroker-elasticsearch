@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import pytest
 from elasticsearch import Elasticsearch
@@ -10,12 +12,8 @@ os.environ.setdefault('MPLBACKEND', 'agg')
 @pytest.fixture(scope='module')
 def es(hosts=None):
     e = Elasticsearch(hosts)
-    ic = e.indices
-    ic.create('dbes-test-xpd')
-    ic.create('dbes-test-iss')
-    ic.create('dbes-test-bad_xpd')
     yield e
-    ic.delete('dbes-test-*')
+    e.indices.delete('dbes-test-*')
     return
 
 
