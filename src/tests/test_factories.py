@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """\
-Test the callback_from_config() factory method.
+Test factory functions in top package namespace.
 """
 
 import pytest
@@ -10,6 +10,8 @@ import yaml
 from databroker_elasticsearch import callback_from_config
 from databroker_elasticsearch import callback_from_name
 from databroker_elasticsearch import load_callback
+from databroker_elasticsearch import load_elasticindex
+
 from conftest import tdatafile
 
 
@@ -46,4 +48,12 @@ def test_callback_from_name():
     assert cb1.esindex.index == 'dbes-test-iss'
     with pytest.raises(FileNotFoundError):
         callback_from_name('does-not-exist')
+    return
+
+
+def test_load_elasticindex():
+    eidx = load_elasticindex(tdatafile('dbes.yml'))
+    assert eidx.index == 'dbes-test-iss'
+    assert len(eidx.mapper.docmap) == 21
+    assert all((len(tp) == 3) for tp in eidx.mapper.docmap)
     return

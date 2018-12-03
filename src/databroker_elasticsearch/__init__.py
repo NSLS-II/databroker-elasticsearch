@@ -70,3 +70,24 @@ def load_callback(filename):
         cfg = yaml.load(fp)
     rv = callback_from_config(cfg)
     return rv
+
+
+def load_elasticindex(filename):
+    """Construct ElasticIndex from a YAML configuration file.
+
+    Parameters
+    ----------
+    filename : str
+        The path to YAML file with ElasticIndex configuration.
+
+    Returns
+    -------
+    ElasticIndex
+        The new instance of ElasticIndex.
+    """
+    import yaml
+    from databroker_elasticsearch.elasticindex import ElasticIndex
+    with open(filename) as fp:
+        cfg = yaml.load(fp)
+    rv = ElasticIndex.from_config(cfg)
+    return rv
