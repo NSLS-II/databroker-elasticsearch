@@ -63,7 +63,7 @@ def test_callback_rebuild(cb, criteria, count):
     assert indexcount(cb) == 1
     # create a mock callable with databroker-like return
     Header = collections.namedtuple('Header', 'start')
-    dbmock = lambda : (Header(start=doc) for doc in issrecords())
+    dbmock = lambda: (Header(start=doc) for doc in issrecords())
     cb.rebuild(dbmock)
     assert indexcount(cb) == count
     return

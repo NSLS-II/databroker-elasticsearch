@@ -6,6 +6,7 @@ Class for translating dictionary document to Elasticsearch entry.
 
 from databroker_elasticsearch.converters import getconverter
 
+
 class ElasticDocument:
 
     def __init__(self, docmap):
@@ -23,7 +24,7 @@ class ElasticDocument:
     def __call__(self, entry):
         rv = {}
         for dname, ename, fcnv in self.docmap:
-            if not dname in entry:
+            if dname not in entry:
                 continue
             dvalue = entry[dname]
             evalue = fcnv(dvalue) if dvalue is not None else None

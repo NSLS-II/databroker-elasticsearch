@@ -12,6 +12,7 @@ from databroker_elasticsearch import callback_from_name
 from databroker_elasticsearch import load_callback
 from conftest import tdatafile
 
+
 @pytest.fixture()
 def tweak_databroker_search_path():
     import databroker._core as dbcore

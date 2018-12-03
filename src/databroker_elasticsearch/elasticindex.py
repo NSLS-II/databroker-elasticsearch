@@ -129,7 +129,7 @@ class ElasticIndex:
         """
         self.es.indices.delete(index=self.index, ignore_unavailable=True)
         self.es.indices.create(index=self.index)
-        mbody = {"properties" : self.doc_properties}
+        mbody = {"properties": self.doc_properties}
         self.es.indices.put_mapping(
             doc_type=self.doc_type, index=self.index, body=mbody)
         return
