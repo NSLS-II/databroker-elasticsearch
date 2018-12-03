@@ -14,8 +14,11 @@ addons:
   apt:
     sources:
     - mongodb-3.2-precise
+    - sourceline: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+      key_url: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
     packages:
     - mongodb-org-server
+    - elasticsearch
 
 matrix:
   include:
