@@ -32,7 +32,8 @@ def use_est_timezone():
     return
 
 
-def test_toisoformat(use_est_timezone):
+@pytest.mark.usefixtures('use_est_timezone')
+def test_toisoformat():
     fcnv = getconverter('toisoformat')
     ny2018noon = 1514826000
     assert fcnv(ny2018noon) == '2018-01-01T12:00:00'

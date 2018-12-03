@@ -38,7 +38,8 @@ def test_callback_from_config():
     return
 
 
-def test_callback_from_name(tweak_databroker_search_path):
+@pytest.mark.usefixtures('tweak_databroker_search_path')
+def test_callback_from_name():
     f = os.path.realpath(tdatafile('dbes.yml'))
     cb0 = callback_from_name(f)
     assert cb0.esindex.index == 'dbes-test-iss'
