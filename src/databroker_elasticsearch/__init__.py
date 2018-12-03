@@ -4,8 +4,6 @@
 Utilities for exporting databroker documents to Elasticsearch.
 """
 
-import os.path
-
 
 from ._version import get_versions
 __version__ = get_versions()['version']
@@ -31,7 +29,7 @@ def callback_from_config(config):
 
 
 def callback_from_name(name):
-    """Construct ElasticCallback instance from a YAML configuration file.
+    """Construct ElasticCallback from YAML configuration in standard paths.
 
     Parameters
     ----------
@@ -43,20 +41,32 @@ def callback_from_name(name):
         * ``{python}/../etc/databroker/xyz-es.yml``
         * ``/etc/databroker/xyz-es.yml``
 
-        If `name` contains a path separator, e.g., "./es.yml" it is used
-        as configuration filename and the lookup above is skipped.
+    Returns
+    -------
+    ElasticCallback
+        The new instance of ElasticCallback.
+    """
+    from databroker._core import lookup_config
+    cfg = lookup_config(name)
+    rv = callback_from_config(cfg)
+    return rv
+
+
+def load_callback(filename):
+    """Construct ElasticCallback from a YAML configuration file.
+
+    Parameters
+    ----------
+    filename : str
+        The path to YAML file with ElasticCallback configuration.
 
     Returns
     -------
     ElasticCallback
-        The new instance of ElasticCallback created from configuration.
+        The new instance of ElasticCallback.
     """
     import yaml
-    from databroker._core import lookup_config
-    if '/' in name or os.path.sep in name:
-        with open(name) as fp:
-            cfg = yaml.load(fp)
-    else:
-        cfg = lookup_config(name)
+    with open(filename) as fp:
+        cfg = yaml.load(fp)
     rv = callback_from_config(cfg)
     return rv

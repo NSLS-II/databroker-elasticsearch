@@ -4,13 +4,12 @@
 Test the callback_from_config() factory method.
 """
 
-import os.path
-
 import pytest
 import yaml
 
 from databroker_elasticsearch import callback_from_config
 from databroker_elasticsearch import callback_from_name
+from databroker_elasticsearch import load_callback
 from conftest import tdatafile
 
 @pytest.fixture()
@@ -40,8 +39,7 @@ def test_callback_from_config():
 
 @pytest.mark.usefixtures('tweak_databroker_search_path')
 def test_callback_from_name():
-    f = os.path.realpath(tdatafile('dbes.yml'))
-    cb0 = callback_from_name(f)
+    cb0 = load_callback(tdatafile('dbes.yml'))
     assert cb0.esindex.index == 'dbes-test-iss'
     cb1 = callback_from_name('dbes')
     assert cb1.esindex.index == 'dbes-test-iss'
