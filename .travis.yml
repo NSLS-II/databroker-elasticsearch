@@ -45,7 +45,9 @@ before_script:
   - python -c "from bluesky.utils import get_history; get_history()"
 
 script:
-  - coverage run --source databroker_elasticsearch,src/tests run_tests.py
+  - coverage run
+      --source=databroker_elasticsearch,src/tests
+      --module pytest -vv -rxs
 
 after_success:
   - coverage report -m
