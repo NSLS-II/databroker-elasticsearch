@@ -4,22 +4,15 @@
 Test the ElasticCallback class.
 """
 
-import pytest
-
 import collections
-import json
+
+import pytest
 
 from conftest import tdatafile
 from databroker_elasticsearch import callback_from_name
 
 
 cb_config_file = tdatafile('dbes.yml')
-
-
-def issrecords():
-    with open(tdatafile('iss-sample.json')) as fp:
-        rv = json.load(fp)
-    return rv
 
 
 def indexcount(cb):
@@ -46,24 +39,24 @@ def cb(es):
 
 
 @pytest.mark.parametrize('criteria,count', [(None, 3), (require_pi, 2)])
-def test_callback_start(cb, criteria, count):
+def test_callback_start(cb, criteria, count, issrecords):
     cb.esindex.criteria = criteria
     assert indexcount(cb) == 0
-    for doc in issrecords():
+    for doc in issrecords:
         cb("start", doc)
     assert indexcount(cb) == count
     return
 
 
 @pytest.mark.parametrize('criteria,count', [(None, 3), (require_pi, 2)])
-def test_callback_rebuild(cb, criteria, count):
+def test_callback_rebuild(cb, criteria, count, issrecords):
     cb.esindex.criteria = criteria
     # add 1 dummy document
     cb.start({"_id": 1, "PI": "Mingzhao"})
     assert indexcount(cb) == 1
     # create a mock callable with databroker-like return
     Header = collections.namedtuple('Header', 'start')
-    dbmock = lambda: (Header(start=doc) for doc in issrecords())
+    dbmock = lambda: (Header(start=doc) for doc in issrecords)
     cb.rebuild(dbmock)
     assert indexcount(cb) == count
     return

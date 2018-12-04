@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+import json
+
 import pytest
 from elasticsearch import Elasticsearch
 
@@ -15,6 +17,13 @@ def es(hosts=None):
     yield e
     e.indices.delete('dbes-test-*')
     return
+
+
+@pytest.fixture
+def issrecords():
+    with open(tdatafile('iss-sample.json')) as fp:
+        rv = json.load(fp)
+    return rv
 
 
 def tdatafile(filename):
