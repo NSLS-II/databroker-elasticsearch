@@ -135,6 +135,33 @@ class ElasticIndex:
         return
 
 
+    def qsearch(self, q, **kwargs):
+        """
+        Search this index using Lucene query string syntax.
+
+        Parameters
+        ----------
+        q : str
+            The string search query in Lucene syntax.
+        kwargs : misc, optional
+            Extra arguments passed to the `Elasticsearch.search` function.
+
+        Returns
+        -------
+        dict
+            The Elasticsearch response with matching hits.
+        """
+        kw = dict(q=q, index=self.index)
+        clashing_args = set(kw).intersection(kwargs)
+        if clashing_args:
+            emsg = ("Conficting keywork arguments: " +
+                    ', '.join(clashing_args))
+            raise TypeError(emsg)
+        kw.update(kwargs)
+        rv = self.es.search(**kw)
+        return rv
+
+
     def ingest(self, doc):
         """Convert and insert one document to ES if it passes `criteria`.
 

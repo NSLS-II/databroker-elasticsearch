@@ -35,6 +35,24 @@ def test_reset(es):
     return
 
 
+def test_qsearch(es, issrecords):
+    ei = ElasticIndex(es, 'dbes-test-qsearch')
+    ei.reset()
+    ei.devour(issrecords)
+    es.indices.refresh()
+    res = ei.qsearch('*')
+    assert res['hits']['total'] == len(issrecords)
+    res = ei.qsearch('scan_id:>42500')
+    assert res['hits']['total'] == 2
+    res = ei.qsearch('uid:73f4e8fa')
+    assert res['hits']['total'] == 1
+    src = res['hits']['hits'][0]['_source']
+    assert src["name"] == "Ti-ZnO NW III cycle 11"
+    with pytest.raises(TypeError):
+        res = ei.qsearch('*', index='dummy')
+    return
+
+
 def test_ingest(es):
     ei = ElasticIndex(es, 'dbes-test-ingest')
     ei.reset()
