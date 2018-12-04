@@ -42,7 +42,7 @@ class ElasticIndex:
         The default is True for all documents.
     doc_type : str
         The name of Elasticsearch document type for added entries.
-        The default is "run".
+        The default is "run_start".
     doc_properties : dict
         The field names and data types in the Elasticsearch `doc_type`. [1]_
 
@@ -64,7 +64,7 @@ class ElasticIndex:
         self.index = index
         self.mapper = mapper
         self.criteria = criteria
-        self.doc_type = "run"
+        self.doc_type = "run_start"
         self.doc_properties = {
             "time": {"type": "date", "format": "epoch_second"},
             "date": {"type": "date", "format": "strict_date_optional_time"},
