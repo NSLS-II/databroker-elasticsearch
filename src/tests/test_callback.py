@@ -54,9 +54,17 @@ def test_callback_rebuild(cb, criteria, count, issrecords):
     # add 1 dummy document
     cb.start({"_id": 1, "PI": "Mingzhao"})
     assert indexcount(cb) == 1
-    # create a mock callable with databroker-like return
+    # create a mock Header type with "start" attribute
     Header = collections.namedtuple('Header', 'start')
-    dbmock = lambda: (Header(start=doc) for doc in issrecords)
-    cb.rebuild(dbmock)
+    headers = [Header(start=doc) for doc in issrecords]
+    cb.rebuild(headers, purge=True)
+    assert indexcount(cb) == count
+    # check rebuild without purge
+    cb.rebuild([], purge=False)
+    assert indexcount(cb) == count
+    cb.rebuild([], purge=True)
+    assert indexcount(cb) == 0
+    for i in range(len(headers)):
+        cb.rebuild(headers[i:i + 1])
     assert indexcount(cb) == count
     return

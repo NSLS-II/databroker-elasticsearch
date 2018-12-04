@@ -49,16 +49,25 @@ class ElasticCallback(CallbackBase):
         return rv
 
 
-    def rebuild(self, db):
-        """Purge ES index and re-export all start documents from databroker.
+    def rebuild(self, headers, purge=False):
+        """Re-export start documents in given headers to Elasticsearch index.
 
         Parameters
         ----------
-        db : databroker.Broker
-            The Broker instance that has all prior "start" documents.
+        headers : iterable
+            The sequence of objects with "start" attribute which is exported.
+            This is usually an iterable of `databroker.Header` objects.
+        purge : bool, optional
+            When True purge the Elasticsearch index before adding headers.
+
+        Returns
+        -------
+        int
+            The number of documents that were added to Elasticsearch.
         """
-        startdocs = (hdr.start for hdr in db())
-        self.esindex.reset()
+        startdocs = (hdr.start for hdr in headers)
+        if purge:
+            self.esindex.reset()
         cnt = self.esindex.devour(startdocs)
         return cnt
 
