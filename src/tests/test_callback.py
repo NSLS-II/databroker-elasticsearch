@@ -53,7 +53,7 @@ def xpd_filter(x):
 @pytest.mark.parametrize(
     "idx, dm, bl, f, doc",
     zip(
-        ["xpd", "iss"],
+        ["dbes-test-xpd", "dbes-test-iss"],
         [
             [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
             [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
@@ -68,18 +68,18 @@ def test_callback(es, idx, dm, bl, f, doc):
     cb("start", doc)
     es.indices.flush()
     res = es.search(idx, body={"query": {"match_all": {}}})
-    assert len(res["hits"]["hits"]) == 1
+    assert res["hits"]["total"] == 1
 
 
 def test_no_op_callback(es):
     cb = ElasticInsert(
         es=es,
-        esindex="bad_xpd",
+        esindex="dbes-test-bad_xpd",
         docmap=[("uid", "uid", noconversion), ("bl", "bl", noconversion)],
         beamline="xpd",
         criteria=xpd_filter,
     )
     cb("start", xpd_bad_doc)
     es.indices.flush()
-    res = es.search("bad_xpd", body={"query": {"match_all": {}}})
-    assert len(res["hits"]["hits"]) == 0
+    res = es.search("dbes-test-bad_xpd", body={"query": {"match_all": {}}})
+    assert res["hits"]["total"] == 0
