@@ -1,0 +1,2 @@
+include versioneer.py
+include src/databroker_elasticsearch/_version.py
