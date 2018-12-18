@@ -69,6 +69,7 @@ class ElasticIndex:
             "time": {"type": "date", "format": "epoch_second"},
             "date": {"type": "date", "format": "strict_date_optional_time"},
         }
+        self._verified_index = ''
         return
 
 
@@ -121,6 +122,20 @@ class ElasticIndex:
         pass
 
 
+    def _ensure_index_exists(self):
+        """Create and reset the index if it does not exist yet.
+        """
+        if self.index == self._verified_index:
+            return
+        if not self.es.indices.exists(self.index):
+            self.reset()
+            assert self.es.indices.exists(self.index)
+        self._verified_index = self.index
+        # check that short-circuit works or fail with infinite recursion.
+        self._ensure_index_exists()
+        return
+
+
     def reset(self):
         """Remove all data from the `index` and set it up anew.
 
@@ -165,12 +180,15 @@ class ElasticIndex:
     def ingest(self, doc):
         """Convert and insert one document to ES if it passes `criteria`.
 
+        When `index` does not exist, call `reset` to set it up.
+
         Returns
         -------
         int
             Number of added documents, 0 or 1.
         """
         cnt = 0
+        self._ensure_index_exists()
         for i, body in self._generate([doc]):
             self.es.index(index=self.index, doc_type=self.doc_type,
                           id=i, body=body)
@@ -181,11 +199,14 @@ class ElasticIndex:
     def devour(self, docs):
         """Convert and add many documents to ES if they pass `criteria`.
 
+        When `index` does not exist, call `reset` to set it up.
+
         Returns
         -------
         int
             Number of added documents.
         """
+        self._ensure_index_exists()
         a = {"_index": self.index, "_type": self.doc_type}
         actions = ((a, a.update(_id=i, _source=src))[0]
                    for i, src in self._generate(docs))

@@ -79,7 +79,6 @@ def test_callback_rebuild(cb, criteria, count, issrecords):
     return
 
 
-@pytest.mark.xfail(reason="callback fails for non-existing index")
 def test_callback_new_index(cb, issrecords):
     es = cb.esindex.es
     ei = cb.esindex
