@@ -23,6 +23,15 @@ def indexcount(cb):
     return int(s)
 
 
+def indexproperties(cb):
+    "Retrieve mapping properties in ES index attached to ElasticCallback."
+    es = cb.esindex.es
+    ei = cb.esindex
+    res = es.indices.get_mapping(ei.index, ignore_unavailable=True)
+    rv = res[ei.index]['mappings'][ei.doc_type]['properties']
+    return rv
+
+
 def require_pi(doc):
     # only accept measurements by Mingzhao
     rv = (doc.get('PI', '') == 'Mingzhao')
@@ -67,4 +76,25 @@ def test_callback_rebuild(cb, criteria, count, issrecords):
     for i in range(len(headers)):
         cb.rebuild(headers[i:i + 1])
     assert indexcount(cb) == count
+    return
+
+
+@pytest.mark.xfail(reason="callback fails for non-existing index")
+def test_callback_new_index(cb, issrecords):
+    es = cb.esindex.es
+    ei = cb.esindex
+    ei.index = "dbes-test-cbni"
+    assert not es.indices.exists(ei.index)
+    cb("start", issrecords[0])
+    assert indexproperties(cb)['time'] == ei.doc_properties['time']
+    assert indexcount(cb) == 1
+    # test cb.rebuild with new index name
+    ei.index = "dbes-test-cbni-2"
+    assert not es.indices.exists(ei.index)
+    # create a mock Header type with "start" attribute
+    Header = collections.namedtuple('Header', 'start')
+    headers = [Header(start=doc) for doc in issrecords]
+    cb.rebuild(headers)
+    assert indexproperties(cb)['time'] == ei.doc_properties['time']
+    assert indexcount(cb) == 3
     return
