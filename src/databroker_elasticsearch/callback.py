@@ -1,3 +1,6 @@
+# FIXME - obsolete module for review purposes only
+# TODO - remove this after merge
+
 """Callback for adding data to elastic search from run engine """
 
 from bluesky.callbacks.core import CallbackBase
