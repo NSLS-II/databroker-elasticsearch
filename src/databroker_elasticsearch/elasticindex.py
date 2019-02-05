@@ -14,8 +14,10 @@ class ElasticIndex:
 
     Parameters
     ----------
-    es : Elasticsearch
+    es : Elasticsearch, str, or dict
         The Elasticsearch client to push entries to.
+        When `str` or `dict` type, instantiate a new Elasticsearch object
+        using this argument.
     index : str
         The index to use in Elasticsearch
     mapper : callable, optional
@@ -27,10 +29,8 @@ class ElasticIndex:
 
     Attributes
     ----------
-    es : Elasticsearch, str, or dict
+    es : Elasticsearch
         The Elasticsearch client to push entries to.
-        When `str` or `dict` type, instantiate a new Elasticsearch object
-        using this argument.
     index : str
         The name of the Elasticsearch index to be manipulated.
     mapper : callable or None, optional
@@ -169,7 +169,7 @@ class ElasticIndex:
         kw = dict(q=q, index=self.index)
         clashing_args = set(kw).intersection(kwargs)
         if clashing_args:
-            emsg = ("Conficting keywork arguments: " +
+            emsg = ("Conficting keyword arguments: " +
                     ', '.join(clashing_args))
             raise TypeError(emsg)
         kw.update(kwargs)
