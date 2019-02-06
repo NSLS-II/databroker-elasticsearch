@@ -4,6 +4,8 @@
 Functions for converting values that are exported to Elasticsearch.
 """
 
+from collections.abc import Sequence
+
 # handle registration of converter functions ---------------------------------
 
 def register_converter(f, name=None):
@@ -84,9 +86,9 @@ def normalize_counts(d):
 
 @register_converter
 def listofstrings(v):
-    """Return argument if it is a list of strings or None if not.
+    """Return argument if it is a sequence of strings or None if not.
     """
     rv = None
-    if isinstance(v, list) and all(isinstance(w, str) for w in v):
+    if isinstance(v, Sequence) and all(isinstance(w, str) for w in v):
         rv = v
     return rv
