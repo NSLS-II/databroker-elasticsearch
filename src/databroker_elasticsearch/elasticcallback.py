@@ -76,6 +76,7 @@ class ElasticCallback(CallbackBase):
     def start(self, doc):
         """Handle "start" document in bluesky run engine callback.
         """
-        # FIXME should we cache and ingest in stop() to avoid canceled runs?
+        # TODO implement `complete=true/false` flag for successful vs
+        # failed measurements.  Needs `stop` callback to set the status.
         self.esindex.ingest(doc)
         return
