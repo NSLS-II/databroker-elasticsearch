@@ -50,7 +50,7 @@ class ElasticCallback(CallbackBase):
 
 
     def rebuild(self, headers, purge=False):
-        """Re-export start documents in given headers to Elasticsearch index.
+        """Export start documents in given headers to Elasticsearch index.
 
         Parameters
         ----------
