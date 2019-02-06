@@ -4,7 +4,7 @@
 Functions for converting values that are exported to Elasticsearch.
 """
 
-from collections.abc import Sequence
+from collections.abc import MutableMapping, Sequence
 
 # handle registration of converter functions ---------------------------------
 
@@ -76,7 +76,7 @@ def normalize_counts(d):
         A copy of `d` with values summing to a total of 1.
         Return ``None`` when `d` is of invalid type.
     """
-    if not isinstance(d, dict):
+    if not isinstance(d, MutableMapping):
         return None
     rv = d.copy()
     totalcount = sum(d.values()) or 1.0
