@@ -1,37 +1,22 @@
 """This is an example for inserting documents into Elasticsearch as they come
-off the RunEngine. This is intended to be put into the collection ipython
-profile after the RunEngine has been initialized.
+off the RunEngine.  This is intended as a startup script for the IPython
+`collection` profile and should run after RunEngine has been initialized.
 
-Note that the host IP address may need to be changed"""
-from elasticsearch import Elasticsearch
-from databroker_elasticsearch.callback import ElasticInsert
-from databroker_elasticsearch.callback import noconversion, toisoformat
+See iss-esconfig.yml for Elasticsearch IP address and for conversion
+specification between the input databroker document and Elasticsearch entry.
+"""
 
-docmap = [
-    # docname  esname  converter
-    ("comment", "comment", noconversion),
-    ("cycle", "cycle", int),
-    ("detectors", "detectors", noconversion),
-    ("e0", "e0", noconversion),
-    ("edge", "edge", noconversion),
-    ("element", "element", noconversion),
-    ("experiment", "experiment", noconversion),
-    ("group", "group", noconversion),
-    ("name", "name", noconversion),
-    ("num_points", "num_points", noconversion),
-    ("plan_name", "plan_name", noconversion),
-    ("PI", "pi", noconversion),
-    ("PROPOSAL", "proposal", noconversion),
-    ("SAF", "saf", noconversion),
-    ("scan_id", "scan_id", noconversion),
-    ("time", "time", noconversion),
-    ("trajectory_name", "trajectory_name", noconversion),
-    ("uid", "uid", noconversion),
-    ("year", "year", int),
-    ("time", "date", toisoformat),
-]
-es = Elasticsearch(hosts=["127.0.0.1"])
+import os.path
+import databroker_elasticsearch
 
-ei = ElasticInsert(es, esindex="iss", docmap=docmap, beamline="iss")
+# muzzle pyflakes so they don't complain about undefined `RE`
+RE = locals().get('RE')
 
-RE.subscribe(ei)
+# resolve path to configuration file iss-esconfig.yml
+_mydir = os.path.dirname(__file__)
+_esconfig = os.path.join(_mydir, 'iss-esconfig.yml'
+
+escb = databroker_elasticsearch.load_callback(_esconfig)
+
+# activate the callback
+RE.subscribe(escb)
