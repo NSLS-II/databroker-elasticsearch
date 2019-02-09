@@ -1,94 +1,110 @@
-"""This is an example for inserting documents into Elasticsearch in bulk from
-a databroker.
+"""Example startup file for inserting databroker documents into Elasticsearch.
+The conversion specification is entirely defined in the script.
+We also use document filtering to insert only allowed entries.
+"""
 
-Note that the host IP address may need to be changed"""
-from elasticsearch import Elasticsearch
-from databroker import Broker
+import re
+from databroker_elasticsearch.elasticcallback import ElasticCallback
+from databroker_elasticsearch.elasticindex import ElasticIndex
+from databroker_elasticsearch.elasticdocument import ElasticDocument
 
+# hostname of Elasticsearch server
+eshost = "localhost"
+# Elasticsearch index where to export the documents
+esindex = "xpd"
 
-from databroker_elasticsearch.callback import (
-    ElasticInsert,
-    noconversion,
-    toisoformat,
-    listofstrings,
-    normalize_counts,
-)
+# At XPD we only export measurements from specific PI-s and ignore all others.
+# We define `xpd_ok` function that returns True for allowed "start" documents.
 
-docmap = [
-    # docname  esname  converter
-    ("bt_experimenters", "experimenters", listofstrings),
-    ("bt_piLast", "pi", noconversion),
-    ("bt_safN", "saf", str),
-    ("bt_wavelength", "wavelength", float),
-    ("composition_string", "formula", noconversion),
-    ("dark_frame", "dark_frame", bool),
-    ("group", "group", noconversion),
-    ("lead_experimenter", "pi", noconversion),
-    ("notes", "comment", noconversion),
-    ("num_points", "num_points", noconversion),
-    ("plan_name", "plan_name", noconversion),
-    ("sample_composition", "composition", normalize_counts),
-    ("scan_id", "scan_id", noconversion),
-    ("sp_computed_exposure", "sp_computed_exposure", float),
-    ("sp_num_frames", "sp_num_frames", int),
-    ("sp_plan_name", "sp_plan_name", noconversion),
-    ("sp_time_per_frame", "sp_time_per_frame", float),
-    ("sp_type", "sp_type", noconversion),
-    ("time", "time", noconversion),
-    ("time", "date", toisoformat),
-    ("uid", "uid", noconversion),
-    ("time", "year", lambda t: int(toisoformat(t)[:4])),
-]
-es = Elasticsearch(hosts=["127.0.0.1"])
+_rxpi = re.compile(r"""
+    # match empty string for undefined PI
+    ^$
+    # allowed PI names
+    |0713_test
+    |Abeykoon
+    |Antonaropoulos
+    |Assefa
+    |Banerjee
+    |Benjiamin
+    |Billinge
+    |Bordet
+    |Bozin
+    |Demo
+    |Dooryhee
+    |Frandsen
+    |Ghose
+    |Hanson
+    |Milinda and Runze
+    |Milinda
+    |Pinero
+    |Robinson
+    |Sanjit
+    |Shi
+    |Test
+    |Yang
+    |billinge
+    |simulation
+    |test
+    |testPI
+    |testPI_2
+    |testTake2
+    |xpdAcq_realase
+    """, re.VERBOSE)
 
-xpd_pis = (
-    "0713_test",
-    "Abeykoon",
-    "Antonaropoulos",
-    "Assefa",
-    "Banerjee",
-    "Benjiamin",
-    "Billinge",
-    "Bordet",
-    "Bozin",
-    "Demo",
-    "Dooryhee",
-    "Frandsen",
-    "Ghose",
-    "Hanson",
-    "Milinda and Runze",
-    "Milinda",
-    "Pinero",
-    "Robinson",
-    "Sanjit",
-    "Shi",
-    "Test",
-    "Yang",
-    "billinge",
-    "simulation",
-    "test",
-    "testPI",
-    "testPI_2",
-    "testTake2",
-    "xpdAcq_realase",
-)
+def xpd_ok(startdoc):
+    """Return value that tests True if document should be exported to ES.
+
+    Return RE match document for the white-listed PI.
+    Return None when PI is not allowed.
+    """
+    btpi = startdoc.get("bt_piLast", "")
+    return _rxpi.search(btpi)
 
 
-def xpd_filter(x):
-    if "bt_piLast" not in x:
-        return True
-    elif x["bt_piLast"] in xpd_pis:
-        return True
-    else:
-        return False
+# Create esdoc callable object for transforming "start" documents to ES entry.
+# Converter may be a string name of registered converter - see
+# `pydoc databroker_elasticsearch.converters` for allowed names.
 
+# define our own conversion utility
+def toyear(tstamp):
+    from time import localtime
+    return localtime(tstamp).tm_year
 
-ei = ElasticInsert(
-    es, esindex="xpd", docmap=docmap, beamline="xpd", criteria=xpd_filter
-)
+esdoc = ElasticDocument(docmap=[
+    # docname  [esname=docname]  [converter=noconversion]
+    ["uid", "_id", str], # the mapping must produce ES name "_id"
+    ["bt_experimenters", "experimenters", "listofstrings"],
+    ["bt_piLast", "pi", str],
+    ["bt_safN", "saf", str],
+    ["bt_wavelength", "wavelength", float],
+    ["composition_string", "formula"], # converter defaults to "noconversion"
+    ["dark_frame", "dark_frame", bool],
+    ["group"], # esname defaults to docname
+    ["lead_experimenter", "pi"],
+    ["notes", "comment"],
+    ["num_points", "num_points"],
+    ["plan_name"],
+    ["sample_composition", "composition", "normalize_counts"],
+    ["scan_id", "scan_id"],
+    ["sp_computed_exposure", "sp_computed_exposure", float],
+    ["sp_num_frames", "sp_num_frames", int],
+    ["sp_plan_name"],
+    ["sp_time_per_frame", "sp_time_per_frame", float],
+    ["sp_type"],
+    ["time"],
+    ["time", "date", "toisoformat"],
+    ["uid", "uid"],
+    ["time", "year", toyear],
+])
 
+# Create esindex interface object to Elasticsearch
+esindex = ElasticIndex(eshost, index=esindex, mapper=esdoc, criteria=xpd_ok)
 
-db = Broker.named("xpd")
+# Create and activate callback object for inserting documents
+escb = ElasticCallback(esindex)
 
-for hdr in db():
-    ei("start", hdr.start)
+# muzzle pyflakes so they don't complain about undefined `RE`
+RE = locals().get('RE')
+
+# activate the callback
+RE.subscribe(escb)
