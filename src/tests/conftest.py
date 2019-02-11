@@ -1,14 +1,33 @@
+#!/usr/bin/env python3
+
+import os
+import json
+
 import pytest
 from elasticsearch import Elasticsearch
 
+# Suggest matplotlib backend that does not need DISPLAY or
+# python running as a framework on OS X.
+os.environ.setdefault('MPLBACKEND', 'agg')
+
 
 @pytest.fixture(scope='module')
-def es(host="127.0.0.1"):
-    e = Elasticsearch(hosts=[host])
-    ic = e.indices
-    ic.create('dbes-test-xpd')
-    ic.create('dbes-test-iss')
-    ic.create('dbes-test-bad_xpd')
+def es(hosts=None):
+    e = Elasticsearch(hosts)
     yield e
-    ic.delete('dbes-test-*')
+    e.indices.delete('dbes-test-*')
     return
+
+
+@pytest.fixture
+def issrecords():
+    with open(tdatafile('iss-sample.json')) as fp:
+        rv = json.load(fp)
+    return rv
+
+
+def tdatafile(filename):
+    "Return absolute path to a file in testdata/ directory."
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    rv = os.path.join(thisdir, 'testdata', filename)
+    return rv

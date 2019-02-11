@@ -14,8 +14,11 @@ addons:
   apt:
     sources:
     - mongodb-3.2-precise
+    - sourceline: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+      key_url: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
     packages:
     - mongodb-org-server
+    - elasticsearch
 
 matrix:
   include:
@@ -37,12 +40,14 @@ install:
   - git clean -xfd
 
 before_script:
-  - conda install pytest coverage codecov flake8
+  - conda install pytest coverage codecov flake8 pyyaml
   # make sure the sqlite file exists to avoid race conditions
   - python -c "from bluesky.utils import get_history; get_history()"
 
 script:
-  - coverage run --source databroker_elasticsearch,src/tests run_tests.py
+  - coverage run
+      --source=databroker_elasticsearch,src/tests
+      --module pytest -vv -rxs
 
 after_success:
   - coverage report -m

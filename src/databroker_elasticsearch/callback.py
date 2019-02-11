@@ -1,53 +1,11 @@
+# FIXME - obsolete module for review purposes only
+# TODO - remove this after merge
+
 """Callback for adding data to elastic search from run engine """
 
 from bluesky.callbacks.core import CallbackBase
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers as eshelpers
-
-
-def noconversion(x):
-    return x
-
-
-def toisoformat(epoch):
-    """Convert epoch seconds to elasticsearch friendly ISO time.
-
-    When `epoch` is a float return ISO date with millisecond
-    precision.  Otherwise return date rounded to seconds.
-
-    Parameters
-    ----------
-    epoch : float
-        The time in seconds since POSIX epoch in 1970.
-
-    Returns
-    -------
-    isodate : str
-        The ISO formatted date and time with second or millisecond precision.
-    """
-    from datetime import datetime
-
-    epochms = round(epoch, 3)
-    dt = datetime.fromtimestamp(epochms)
-    tiso = dt.isoformat()
-    rv = tiso[:-3] if dt.microsecond else tiso
-    assert len(rv) in (19, 23)
-    return rv
-
-
-def normalize_counts(d):
-    if not isinstance(d, dict):
-        return None
-    totalcount = sum(d.values()) or 1.0
-    rv = dict((k, v / totalcount) for k, v in d.items())
-    return rv
-
-
-def listofstrings(v):
-    rv = None
-    if isinstance(v, list) and all(isinstance(w, str) for w in v):
-        rv = v
-    return rv
 
 
 def esdocument(docmap, entry):
@@ -103,7 +61,6 @@ class ElasticInsert(CallbackBase):
     >>> for hdr in db():
     ...     for name, doc in hdr.documents():
     ...         ei(name, doc)
-
     """
 
     def __init__(
@@ -112,7 +69,7 @@ class ElasticInsert(CallbackBase):
         esindex: str,
         docmap: list,
         beamline: str,
-        criteria=lambda x: True,
+        criteria=None,
     ):
         """Init callback
 
@@ -137,32 +94,38 @@ class ElasticInsert(CallbackBase):
         self.esindex = esindex
         self.docmap = docmap
         self.es = es
+        return
+
 
     def start(self, doc):
-        if self.criteria(doc):
-            # filter the doc
-            # transform the docs
-            sanitized_docs = esdocument(self.docmap, doc)
-            actions = dict(
-                _index=self.esindex,
-                # XXX: this might not work?
-                _id=doc["uid"],
-                _type=self.beamline,
-                _source=sanitized_docs,
-            )
-            self.es.indices.delete(index=self.esindex, ignore_unavailable=True)
-            self.es.indices.create(index=self.esindex)
-            mbody = {
-                "properties": {
-                    "time": {"type": "date", "format": "epoch_second"},
-                    "date": {
-                        "type": "date",
-                        "format": "strict_date_optional_time",
-                    },
-                }
+        # skip document if it does not meet criteria
+        ok = self.criteria is None or self.criteria(doc)
+        if not ok:
+            return
+        # filter the doc
+        # transform the docs
+        sanitized_docs = esdocument(self.docmap, doc)
+        actions = dict(
+            _index=self.esindex,
+            # XXX: this might not work?
+            _id=doc["uid"],
+            _type=self.beamline,
+            _source=sanitized_docs,
+        )
+        self.es.indices.delete(index=self.esindex, ignore_unavailable=True)
+        self.es.indices.create(index=self.esindex)
+        mbody = {
+            "properties": {
+                "time": {"type": "date", "format": "epoch_second"},
+                "date": {
+                    "type": "date",
+                    "format": "strict_date_optional_time",
+                },
             }
-            self.es.indices.put_mapping(
-                doc_type=self.beamline, index=self.esindex, body=mbody
-            )
-            # TODO: use regular insert rather than bulk
-            eshelpers.bulk(self.es, [actions])
+        }
+        self.es.indices.put_mapping(
+            doc_type=self.beamline, index=self.esindex, body=mbody
+        )
+        # TODO: use regular insert rather than bulk
+        eshelpers.bulk(self.es, [actions])
+        return

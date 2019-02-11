@@ -1,85 +1,99 @@
+#!/usr/bin/env python3
+
+"""\
+Test the ElasticCallback class.
+"""
+
+import collections
+
 import pytest
 
-from databroker_elasticsearch.callback import ElasticInsert, noconversion
-
-# TODO: fill these in with prototype data!
-xpd_doc = {"bl": "xpd", "uid": "hi"}
-xpd_bad_doc = {"bt_piLast": "not Simon", "bl": "xpd", "uid": "hi1"}
-iss_doc = {"bl": "iss", "uid": "hi2"}
+from conftest import tdatafile
+from databroker_elasticsearch import callback_from_name
 
 
-xpd_pis = (
-    "0713_test",
-    "Abeykoon",
-    "Antonaropoulos",
-    "Assefa",
-    "Banerjee",
-    "Benjiamin",
-    "Billinge",
-    "Bordet",
-    "Bozin",
-    "Demo",
-    "Dooryhee",
-    "Frandsen",
-    "Ghose",
-    "Hanson",
-    "Milinda and Runze",
-    "Milinda",
-    "Pinero",
-    "Robinson",
-    "Sanjit",
-    "Shi",
-    "Test",
-    "Yang",
-    "billinge",
-    "simulation",
-    "test",
-    "testPI",
-    "testPI_2",
-    "testTake2",
-    "xpdAcq_realase",
-)
+cb_config_file = tdatafile('dbes.yml')
 
 
-def xpd_filter(x):
-    if "bt_piLast" not in x:
-        return True
-    elif x["bt_piLast"] in xpd_pis:
-        return True
-    else:
-        return False
+def indexcount(cb):
+    "Return number of entries in ES index attached to ElasticCallback."
+    es = cb.esindex.es
+    es.indices.refresh()
+    s = es.cat.count(cb.esindex.index, h='count')
+    return int(s)
 
 
-@pytest.mark.parametrize(
-    "idx, dm, bl, f, doc",
-    zip(
-        ["dbes-test-xpd", "dbes-test-iss"],
-        [
-            [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
-            [("uid", "uid", noconversion), ("bl", "bl", noconversion)],
-        ],
-        ["xpd", "iss"],
-        [xpd_filter, lambda x: True],
-        [xpd_doc, iss_doc],
-    ),
-)
-def test_callback(es, idx, dm, bl, f, doc):
-    cb = ElasticInsert(es=es, esindex=idx, docmap=dm, beamline=bl, criteria=f)
-    cb("start", doc)
-    es.indices.flush()
-    res = es.search(idx, body={"query": {"match_all": {}}})
-    assert res["hits"]["total"] == 1
+def indexproperties(cb):
+    "Retrieve mapping properties in ES index attached to ElasticCallback."
+    es = cb.esindex.es
+    ei = cb.esindex
+    res = es.indices.get_mapping(ei.index, ignore_unavailable=True)
+    rv = res[ei.index]['mappings'][ei.doc_type]['properties']
+    return rv
 
 
-def test_no_op_callback(es):
-    cb = ElasticInsert(
-        es=es,
-        esindex="dbes-test-bad_xpd",
-        docmap=[("uid", "uid", noconversion), ("bl", "bl", noconversion)],
-        beamline="xpd",
-        criteria=xpd_filter,
-    )
-    cb("start", xpd_bad_doc)
-    es.indices.flush()
-    res = es.search("dbes-test-bad_xpd", body={"query": {"match_all": {}}})
-    assert res["hits"]["total"] == 0
+def require_pi(doc):
+    # only accept measurements by Mingzhao
+    rv = (doc.get('PI', '') == 'Mingzhao')
+    return rv
+
+
+@pytest.fixture
+def cb(es):
+    "Create callback instance from config file, but use our Elasticsearch."
+    cb = callback_from_name(tdatafile('dbes.yml'))
+    cb.esindex.es = es
+    cb.esindex.reset()
+    return cb
+
+
+@pytest.mark.parametrize('criteria,count', [(None, 3), (require_pi, 2)])
+def test_callback_start(cb, criteria, count, issrecords):
+    cb.esindex.criteria = criteria
+    assert indexcount(cb) == 0
+    for doc in issrecords:
+        cb("start", doc)
+    assert indexcount(cb) == count
+    return
+
+
+@pytest.mark.parametrize('criteria,count', [(None, 3), (require_pi, 2)])
+def test_callback_rebuild(cb, criteria, count, issrecords):
+    cb.esindex.criteria = criteria
+    # add 1 dummy document
+    cb.start({"_id": 1, "PI": "Mingzhao"})
+    assert indexcount(cb) == 1
+    # create a mock Header type with "start" attribute
+    Header = collections.namedtuple('Header', 'start')
+    headers = [Header(start=doc) for doc in issrecords]
+    cb.rebuild(headers, purge=True)
+    assert indexcount(cb) == count
+    # check rebuild without purge
+    cb.rebuild([], purge=False)
+    assert indexcount(cb) == count
+    cb.rebuild([], purge=True)
+    assert indexcount(cb) == 0
+    for i in range(len(headers)):
+        cb.rebuild(headers[i:i + 1])
+    assert indexcount(cb) == count
+    return
+
+
+def test_callback_new_index(cb, issrecords):
+    es = cb.esindex.es
+    ei = cb.esindex
+    ei.index = "dbes-test-cbni"
+    assert not es.indices.exists(ei.index)
+    cb("start", issrecords[0])
+    assert indexproperties(cb)['time'] == ei.doc_properties['time']
+    assert indexcount(cb) == 1
+    # test cb.rebuild with new index name
+    ei.index = "dbes-test-cbni-2"
+    assert not es.indices.exists(ei.index)
+    # create a mock Header type with "start" attribute
+    Header = collections.namedtuple('Header', 'start')
+    headers = [Header(start=doc) for doc in issrecords]
+    cb.rebuild(headers)
+    assert indexproperties(cb)['time'] == ei.doc_properties['time']
+    assert indexcount(cb) == 3
+    return

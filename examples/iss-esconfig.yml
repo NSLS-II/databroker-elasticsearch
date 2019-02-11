@@ -1,0 +1,36 @@
+# Example configuration for ElasticCallback document exporter
+databroker-elasticsearch:
+
+  # hostname or IP address of Elasticsearch server
+  host: localhost
+
+  # Elasticsearch "index" to be updated
+  index: iss
+
+  # conversion specification from databroker "start" documents
+  # See `pydoc databroker_elasticsearch.converters` for converter names.
+  docmap:
+    # startdocname  [esname[=startdocname]]  [converter[=noconversion]]
+    # the mapping must produce ES name "_id"
+    - [uid, _id, str]
+    - [comment]
+    - [cycle, cycle, int]
+    - [detectors]
+    - [e0]
+    - [edge]
+    - [element]
+    - [element_full]
+    - [experiment]
+    - [group]
+    - [name]
+    - [num_points]
+    - [plan_name]
+    - [PI, pi]
+    - [PROPOSAL, proposal]
+    - [SAF, saf]
+    - [scan_id]
+    - [time]
+    - [trajectory_name]
+    - [uid]
+    - [year, year, int]
+    - [time, date, toisoformat]
