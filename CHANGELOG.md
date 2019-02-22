@@ -1,6 +1,6 @@
 # Release notes
 
-## Unreleased - Version 0.0.1
+## Version 0.0.1 -- 2019-02-22
 
 ### Added
 
