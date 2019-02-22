@@ -6,6 +6,9 @@
 Welcome to databroker-elasticsearch's documentation!
 ====================================================
 
+| Release |release|
+| |today|
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

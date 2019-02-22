@@ -11,24 +11,30 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath('../../src'))
+from databroker_elasticsearch import version as versiondata
 
 # -- Project information -----------------------------------------------------
 
 project = 'databroker-elasticsearch'
-copyright = ('2019, Brookhaven Science Associates, '
+copyright = ('%Y, Brookhaven Science Associates, '
              'Brookhaven National Laboratory')
 author = 'Pavol Juhas, Christopher J. Wright'
 
+fullversion = versiondata.__version__
 # The short X.Y version
-version = ''
+version = ''.join(fullversion.split('.post')[:1])
 # The full version, including alpha/beta/rc tags
-release = '0.0.1
+release = fullversion
 
+tm_today = time.localtime(versiondata.__timestamp__)
+today = time.strftime('%B %d, %Y', tm_today)
+copyright = time.strftime(copyright, tm_today)
 
 # -- General configuration ---------------------------------------------------
 
