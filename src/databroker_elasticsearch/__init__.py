@@ -67,7 +67,7 @@ def load_callback(filename):
     """
     import yaml
     with open(filename) as fp:
-        cfg = yaml.load(fp)
+        cfg = yaml.full_load(fp)
     rv = callback_from_config(cfg)
     return rv
 
@@ -88,6 +88,6 @@ def load_elasticindex(filename):
     import yaml
     from databroker_elasticsearch.elasticindex import ElasticIndex
     with open(filename) as fp:
-        cfg = yaml.load(fp)
+        cfg = yaml.full_load(fp)
     rv = ElasticIndex.from_config(cfg)
     return rv

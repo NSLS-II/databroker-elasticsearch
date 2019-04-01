@@ -28,7 +28,7 @@ def tweak_databroker_search_path():
 def test_callback_from_config():
     f = tdatafile('dbes.yml')
     with open(f) as fp:
-        cfg = yaml.load(fp)
+        cfg = yaml.safe_load(fp)
     cb = callback_from_config(cfg)
     assert cb.esindex.index == 'dbes-test-iss'
     doc1 = {'_id': 13, 'SAF': 1234, 'year': '2018'}
