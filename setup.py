@@ -14,4 +14,10 @@ setup(
     description='Databroker ElasticSearch bridge',
     zip_safe=False,
     include_package_data=True,
+    classifiers = [
+        # List of possible values at
+        # https://pypi.python.org/pypi?:action=list_classifiers
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+    ],
 )
