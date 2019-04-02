@@ -34,10 +34,11 @@ def test_callback_from_config():
         cfg = yaml.safe_load(fp)
     cb = callback_from_config(cfg)
     assert cb.esindex.index == 'dbes-test-iss'
-    doc1 = {'_id': 13, 'SAF': 1234, 'year': '2018'}
+    doc1 = {'uid': 13, 'SAF': 1234, 'year': '2018'}
     edoc1 = cb.esindex.mapper(doc1)
-    assert len(edoc1) == 3
+    assert len(edoc1) == 4
     assert edoc1['_id'] == "13"
+    assert edoc1['uid'] == 13
     assert edoc1['saf'] == 1234
     assert edoc1['year'] == 2018
     return
