@@ -14,7 +14,7 @@ RE = locals().get('RE')
 
 # resolve path to configuration file iss-esconfig.yml
 _mydir = os.path.dirname(__file__)
-_esconfig = os.path.join(_mydir, 'iss-esconfig.yml'
+_esconfig = os.path.join(_mydir, 'iss-esconfig.yml')
 
 escb = databroker_elasticsearch.load_callback(_esconfig)
 
