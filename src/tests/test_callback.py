@@ -11,6 +11,8 @@ import pytest
 from conftest import tdatafile
 from databroker_elasticsearch import callback_from_name
 
+# Ignore YAMLLoadWarning from databroker package
+pytestmark = pytest.mark.filterwarnings('ignore:calling yaml::databroker[.]')
 
 cb_config_file = tdatafile('dbes.yml')
 

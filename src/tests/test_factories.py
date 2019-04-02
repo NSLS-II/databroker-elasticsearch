@@ -14,6 +14,9 @@ from databroker_elasticsearch import load_elasticindex
 
 from conftest import tdatafile
 
+# Ignore YAMLLoadWarning from databroker package
+pytestmark = pytest.mark.filterwarnings('ignore:calling yaml::databroker[.]')
+
 
 @pytest.fixture()
 def tweak_databroker_search_path():
