@@ -45,6 +45,9 @@ class BrokerSearch:
         es = self.esindex.es
         index = self.esindex.index
         gscan = scan(es, q=q, index=index, _source=['uid'], **kwargs)
-        gstartstop = ((e['_source']['uid'], None) for e in gscan)
+        # FIXME: we need a fetchstart to work around bug in databroker.
+        # Remove the fetchstart mapping when fixed.
+        fetchstart = self.db.hs.mds.run_start_given_uid
+        gstartstop = ((fetchstart(e['_source']['uid']), None) for e in gscan)
         rv = Results(gstartstop, self.db, data_key=None)
         return rv
