@@ -36,8 +36,28 @@ def bsearch(es, db, issrecords):
     return rv
 
 
-def test_bksearch_all(bsearch):
-    assert ilength(bsearch()) == 3
-    assert ilength(bsearch('*')) == 3
-    assert ilength(bsearch(query={'query': {'match_all': {}}})) == 3
+def test_bksearch_all(bsearch, issrecords):
+    cntall = len(issrecords)
+    assert ilength(bsearch()) == cntall
+    assert ilength(bsearch('*')) == cntall
+    assert ilength(bsearch(query={'query': {'match_all': {}}})) == cntall
+    return
+
+
+def test_bksearch_q(bsearch):
+    headers = list(bsearch('Kisa'))
+    assert len(headers) == 1
+    h = headers[0]
+    assert h.start['scan_id'] == 47797
+    assert h.start['PROPOSAL'] == '302753'
+    return
+
+
+def test_bksearch_date(bsearch, issrecords):
+    cntall = len(issrecords)
+    assert ilength(bsearch('date:2018-02-10')) == 1
+    assert ilength(bsearch('date:2000-01-01')) == 0
+    assert ilength(bsearch('date:[2000-01-01 TO *]')) == cntall
+    res = bsearch(query={'query': {'range': {'scan_id': {'gt': 42500}}}})
+    assert ilength(res) == 2
     return
