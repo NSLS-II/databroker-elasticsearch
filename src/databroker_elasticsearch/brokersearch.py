@@ -44,10 +44,7 @@ class BrokerSearch:
         from elasticsearch.helpers import scan
         es = self.esindex.es
         index = self.esindex.index
-        doc_type = self.esindex.doc_type
-        query = {'q': q}
-        gscan = scan(es, query, index=index, doc_type=doc_type,
-                     _source=['uid'], **kwargs)
+        gscan = scan(es, q=q, index=index, _source=['uid'], **kwargs)
         gstartstop = ((e['_source']['uid'], None) for e in gscan)
         rv = Results(gstartstop, self.db, data_key=None)
         return rv
