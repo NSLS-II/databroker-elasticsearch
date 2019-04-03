@@ -55,7 +55,7 @@ def test_bksearch_q(bsearch):
 
 def test_bksearch_date(bsearch, issrecords):
     cntall = len(issrecords)
-    assert ilength(bsearch('date:2018-02-10')) == 1
+    assert ilength(bsearch('date:[* TO 2018-03-01]')) == 2
     assert ilength(bsearch('date:2000-01-01')) == 0
     assert ilength(bsearch('date:[2000-01-01 TO *]')) == cntall
     res = bsearch(query={'query': {'range': {'scan_id': {'gt': 42500}}}})
