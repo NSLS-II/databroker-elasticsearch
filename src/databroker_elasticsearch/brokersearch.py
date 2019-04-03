@@ -25,14 +25,16 @@ class BrokerSearch:
         return
 
 
-    def __call__(self, q, **kwargs):
+    def __call__(self, q=None, **kwargs):
         """
         Execute search using Lucene query string syntax.
 
         Parameters
         ----------
-        q : str
+        q : str, optional
             The string search query in Lucene syntax.
+        query : dict, optional, keyword-only
+            The search definition using the Query DSL.
         kwargs : misc, optional
             Extra arguments passed to the `Elasticsearch.search` function.
 
