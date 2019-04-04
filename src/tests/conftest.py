@@ -19,11 +19,18 @@ def es(hosts=None):
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def issrecords():
     with open(tdatafile('iss-sample.json')) as fp:
         rv = json.load(fp)
     return rv
+
+
+@pytest.fixture(scope='module')
+def db(request):
+    from databroker.tests.utils import build_sqlite_backed_broker
+    bk = build_sqlite_backed_broker(request)
+    return bk
 
 
 def tdatafile(filename):

@@ -5,7 +5,7 @@ databroker-elasticsearch:
   docmap:
     # brokername  [esname[=brokername]]  [converter[=noconversion]]
     # the mapping must produce ES name "_id"
-    - [_id, _id, str]
+    - [uid, _id, str]
     - [comment]
     - [cycle, cycle, int]
     - [detectors]

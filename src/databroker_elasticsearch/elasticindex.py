@@ -150,14 +150,18 @@ class ElasticIndex:
         return
 
 
-    def qsearch(self, q, **kwargs):
+    def qsearch(self, q=None, **kwargs):
         """
         Search this index using Lucene query string syntax.
 
         Parameters
         ----------
-        q : str
+        q : str, optional
             The string search query in Lucene syntax.
+        query : dict, optional, keyword-only
+            The search definition using the Query DSL.
+            The ``query`` and ``body`` arguments  are equivalent and
+            only one of them can be specified.
         kwargs : misc, optional
             Extra arguments passed to the `Elasticsearch.search` function.
 
@@ -168,10 +172,15 @@ class ElasticIndex:
         """
         kw = dict(q=q, index=self.index)
         clashing_args = set(kw).intersection(kwargs)
+        bq = set(('body', 'query'))
+        if bq.issubset(kwargs):
+            clashing_args.update(bq)
         if clashing_args:
             emsg = ("Conficting keyword arguments: " +
                     ', '.join(clashing_args))
             raise TypeError(emsg)
+        if 'query' in kwargs:
+            kw['body'] = kwargs.pop('query')
         kw.update(kwargs)
         rv = self.es.search(**kw)
         return rv

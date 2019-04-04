@@ -11,6 +11,8 @@ import pytest
 from conftest import tdatafile
 from databroker_elasticsearch import callback_from_name
 
+# Ignore YAMLLoadWarning from databroker package
+pytestmark = pytest.mark.filterwarnings('ignore:calling yaml::databroker[.]')
 
 cb_config_file = tdatafile('dbes.yml')
 
@@ -61,7 +63,7 @@ def test_callback_start(cb, criteria, count, issrecords):
 def test_callback_rebuild(cb, criteria, count, issrecords):
     cb.esindex.criteria = criteria
     # add 1 dummy document
-    cb.start({"_id": 1, "PI": "Mingzhao"})
+    cb.start({"uid": 1, "PI": "Mingzhao"})
     assert indexcount(cb) == 1
     # create a mock Header type with "start" attribute
     Header = collections.namedtuple('Header', 'start')
