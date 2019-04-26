@@ -67,7 +67,8 @@ class ElasticIndex:
         self.doc_type = "run_start"
         self.doc_properties = {
             "time": {"type": "date", "format": "epoch_second"},
-            "date": {"type": "date", "format": "strict_date_optional_time"},
+            "date": {"type": "date",
+                     "format": "strict_date_optional_time||epoch_second"},
         }
         self._verified_index = ''
         return

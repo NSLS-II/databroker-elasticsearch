@@ -73,6 +73,8 @@ def test_date_tz(es, issrecords):
     hits = lambda q: ei.qsearch(q)['hits']['total']
     assert 0 == hits('date:[* TO 2018-02-10T19:36:00-05:00]')
     assert 1 == hits('date:[* TO 2018-02-10T19:37:00-05:00]')
+    assert 0 == hits('date:<1518309396')
+    assert 1 == hits('date:<1518309397')
     return
 
 
