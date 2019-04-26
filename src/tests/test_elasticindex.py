@@ -63,6 +63,21 @@ def test_qsearch(es, issrecords):
     return
 
 
+def test_date_tz(es, issrecords):
+    from databroker_elasticsearch.elasticdocument import ElasticDocument
+    docmap = [['uid', '_id'], ['time'], ['time', 'date', 'toisoformat']]
+    esdoc = ElasticDocument(docmap)
+    ei = ElasticIndex(es, 'dbes-test-date', mapper=esdoc)
+    ei.devour(issrecords)
+    es.indices.refresh()
+    hits = lambda q: ei.qsearch(q)['hits']['total']
+    assert 0 == hits('date:[* TO 2018-02-10T19:36:00-05:00]')
+    assert 1 == hits('date:[* TO 2018-02-10T19:37:00-05:00]')
+    assert 0 == hits('date:<1518309396')
+    assert 1 == hits('date:<1518309397')
+    return
+
+
 def test_ingest(es):
     ei = ElasticIndex(es, 'dbes-test-ingest')
     ei.reset()

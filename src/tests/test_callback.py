@@ -14,8 +14,6 @@ from databroker_elasticsearch import callback_from_name
 # Ignore YAMLLoadWarning from databroker package
 pytestmark = pytest.mark.filterwarnings('ignore:calling yaml::databroker[.]')
 
-cb_config_file = tdatafile('dbes.yml')
-
 
 def indexcount(cb):
     "Return number of entries in ES index attached to ElasticCallback."

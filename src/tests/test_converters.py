@@ -36,8 +36,8 @@ def use_est_timezone():
 def test_toisoformat():
     fcnv = getconverter('toisoformat')
     ny2018noon = 1514826000
-    assert fcnv(ny2018noon) == '2018-01-01T12:00:00'
-    assert fcnv(ny2018noon + 0.1235) == '2018-01-01T12:00:00.124'
+    assert fcnv(ny2018noon) == '2018-01-01T12:00:00-05:00'
+    assert fcnv(ny2018noon + 0.1235) == '2018-01-01T12:00:00.124-05:00'
     return
 
 

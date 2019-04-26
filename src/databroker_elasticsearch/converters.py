@@ -53,10 +53,10 @@ def toisoformat(epoch):
     """
     from datetime import datetime
     epochms = round(epoch, 3)
-    dt = datetime.fromtimestamp(epochms)
-    tiso = dt.isoformat()
-    rv = tiso[:-3] if dt.microsecond else tiso
-    assert len(rv) in (19, 23)
+    dt = datetime.fromtimestamp(epochms).astimezone()
+    ts = 'milliseconds' if dt.microsecond else 'auto'
+    rv = dt.isoformat(timespec=ts)
+    assert len(rv) in (25, 29)
     return rv
 
 
