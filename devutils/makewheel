@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+'''Create reproducible wheel distribution with mtimes set to git commit time.
+'''
+
+import sys
+import os
+from subprocess import check_call, DEVNULL
+
+BASEDIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(BASEDIR, 'src'))
+
+from databroker_elasticsearch.version import __timestamp__ as timestamp
+
+env = dict(os.environ)
+env['SOURCE_DATE_EPOCH'] = str(timestamp)
+kw = dict(cwd=BASEDIR, stdout=DEVNULL, env=env)
+
+cmd_clean = 'setup.py --quiet clean --all'
+print('Run "{}"'.format(cmd_clean), end=' ', flush=True)
+cmd = [sys.executable] + cmd_clean.split()
+check_call(cmd, stderr=DEVNULL, **kw)
+print("[done]")
+
+cmd_bdist = 'setup.py --quiet bdist_wheel'
+print('Run "{}"'.format(cmd_bdist), end=' ', flush=True)
+cmd = [sys.executable] + cmd_bdist.split()
+check_call(cmd, **kw)
+print("[done]")
