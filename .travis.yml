@@ -1,5 +1,9 @@
 language: python
 
+env:
+  - NOMC=true NOPY=false
+  - NOMC=false NOPY=true
+
 branches:
   except:
     - /^v[0-9]/
@@ -33,26 +37,34 @@ before_install:
   - sudo chgrp elasticsearch /etc/default/elasticsearch
   - sudo service elasticsearch start
 
-  - wget -O miniconda.sh
+  - $NOMC || wget -O miniconda.sh
       https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  - bash ./miniconda.sh -b -p ~/mc
-  - source ~/mc/bin/activate base
-  - conda config --set always_yes true --set quiet true
-  - conda update conda
-  - conda install conda-build conda-verify
-  - conda config --add channels conda-forge
+  - $NOMC || bash ./miniconda.sh -b -p ~/mc
+  - $NOMC || source ~/mc/bin/activate base
+  - $NOMC || conda config --set always_yes true --set quiet true
+  - $NOMC || conda update conda
+  - $NOMC || conda install conda-build conda-verify
+  - $NOMC || conda config --add channels conda-forge
+
+  - $NOPY || devutils/makewheel
+  - $NOPY || MYWHEEL="$(ls -t "${PWD}"/dist/*.whl | head -1)"
 
 install:
-  - conda build conda-recipe
-  - conda render --output conda-recipe |
+  - $NOMC || conda build conda-recipe
+  - $NOMC || conda render --output conda-recipe |
       sed 's,.*/,,; s/.tar.bz2$//; s/-\([p0-9]\)/=\1/g' >/tmp/mypackage.txt
-  - conda create -n testenv python=$TRAVIS_PYTHON_VERSION
-  - source activate testenv
-  - conda install --use-local --file=/tmp/mypackage.txt
+  - $NOMC || conda create -n testenv python=$TRAVIS_PYTHON_VERSION
+  - $NOMC || source activate testenv
+  - $NOMC || conda install --use-local --file=/tmp/mypackage.txt
+
+  - $NOPY || pip install -r requirements.txt
+  - $NOPY || pip install $MYWHEEL
+
   - git clean -xfd
 
 before_script:
-  - conda install pytest coverage codecov flake8
+  - $NOMC || conda install pytest coverage codecov flake8
+  - $NOPY || pip install pytest coverage codecov flake8
   # make sure the sqlite file exists to avoid race conditions
   - python -c "from bluesky.utils import get_history; get_history()"
 
