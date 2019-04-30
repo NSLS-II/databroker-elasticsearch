@@ -1,5 +1,8 @@
 language: python
 
+python:
+  - 3.6
+
 env:
   - NOMC=true NOPY=false
   - NOMC=false NOPY=true
@@ -26,10 +29,6 @@ addons:
     packages:
     - mongodb-org-server
     - elasticsearch
-
-matrix:
-  include:
-    - python: 3.6
 
 before_install:
   # Fix travis elasticsearch startup due to unreadable config file.
