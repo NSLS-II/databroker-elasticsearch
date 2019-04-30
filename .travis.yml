@@ -32,22 +32,27 @@ before_install:
   # TODO: remove when default startup passes in travis logs.
   - sudo chgrp elasticsearch /etc/default/elasticsearch
   - sudo service elasticsearch start
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+
+  - wget -O miniconda.sh
+      https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
   - bash ./miniconda.sh -b -p ~/mc
   - source ~/mc/bin/activate base
-  - conda config --set always_yes yes --set changeps1 no --set quiet true
-  - conda update conda --yes
+  - conda config --set always_yes true --set quiet true
+  - conda update conda
+  - conda install conda-build conda-verify
   - conda config --add channels conda-forge
 
 install:
+  - conda build conda-recipe
+  - conda render --output conda-recipe |
+      sed 's,.*/,,; s/.tar.bz2$//; s/-\([p0-9]\)/=\1/g' >/tmp/mypackage.txt
   - conda create -n testenv python=$TRAVIS_PYTHON_VERSION
   - source activate testenv
-  - conda install --file requirements.txt
-  - pip install .
+  - conda install --use-local --file=/tmp/mypackage.txt
   - git clean -xfd
 
 before_script:
-  - conda install pytest coverage codecov flake8 pyyaml
+  - conda install pytest coverage codecov flake8
   # make sure the sqlite file exists to avoid race conditions
   - python -c "from bluesky.utils import get_history; get_history()"
 
