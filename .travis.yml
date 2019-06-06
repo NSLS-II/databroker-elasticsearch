@@ -56,7 +56,7 @@ install:
   - $NOMC || source activate testenv
   - $NOMC || conda install --use-local --file=/tmp/mypackage.txt
 
-  - $NOPY || pip install -r requirements.txt
+  - $NOPY || pip install --upgrade -r requirements.txt
   - $NOPY || pip install $MYWHEEL
 
   - git clean -xfd
