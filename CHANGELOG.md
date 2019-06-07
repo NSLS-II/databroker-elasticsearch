@@ -12,10 +12,10 @@
 
 - Make Lucene query argument `q` optional in `ElasticIndex.qsearch` and
   add `query` argument for full ES DSL queries.
-- Record local timezone in ES `date` field.j
+- Record local timezone in ES `date` field.
 
 
-## Version 0.0.1 -- 2019-02-22
+## Version 0.0.1 – 2019-02-22
 
 ### Added
 
